@@ -1,212 +1,278 @@
+# Proloco Gym Access v1.2
 
-# Proloco Gym Access
+Sistema completo per gestione accessi palestra Proloco con tessere NFC, ESP32, serratura elettronica, tablet al bar, area Admin, Totem interno e diario pulizie automatico.
 
-Sistema completo gestione accessi palestra con NFC/RFID sviluppato per la Proloco.
-
-## Funzioni principali
-
-### Accesso palestra
-- Apertura porta tramite tessera NFC/RFID
-- Controllo scadenza abbonamento online
-- Cache offline ESP32
-- Log accessi
-- Accessi negati registrati
-- Entrata singola temporanea
-- Revoca tessera
-- Anti passback
-- Fasce orarie configurabili
+## Credenziali demo
 
 ### Admin Proloco
-Accesso protetto con password admin.
+- URL: `/admin`
+- Password: `babyjake`
 
-Funzioni:
-- Gestione clienti
-- Gestione tessere
-- Gestione prezzi
-- Gestione operatori bar
-- Gestione accessi
-- Gestione pagamenti
-- Gestione log
-- Gestione ESP32
-- Apertura remota porta
-- Backup database
-- Esportazione CSV/Excel
-- Statistiche
-- Gestione documenti e certificati
+### Bar demo
+- URL: `/bar`
+- Username: `gallonero`
+- Password: `gallo123`
+- Nome operatore: **Bar Il Gallo Nero**
 
-Password admin iniziale:
-- Username: admin
-- Password: babyjake
+> Cambiare subito queste credenziali prima dell'uso reale.
 
-## Sezione Bar / Ristorante
+## Novità v1.2
 
-Operatore demo configurato:
+- Sito configurabile da Admin.
+- Temi grafici puliti ispirati a palestre e studi fitness.
+- Temi inclusi:
+  - Clean Light
+  - Clean Blue
+  - Warm Studio
+  - Minimal White
+  - Dark Premium
+- Nome palestra configurabile.
+- Testo logo configurabile.
+- Fasce orarie configurabili.
+- Secondi apertura porta configurabili.
+- Anti-passback configurabile.
+- Limite accessi giornalieri predisposto.
+- Livelli accesso tessera:
+  - `member`: membro palestra normale
+  - `cleaner`: pulizie, accesso illimitato e registrazione automatica nel diario pulizie
+  - `staff`: staff Proloco, accesso illimitato
+  - `admin`: admin tecnico, accesso illimitato
+- Nuova sezione **Diario pulizie**.
+- Firmware ESP32 aggiornato con display OLED opzionale.
+- Il display mostra:
+  - nome utente autenticato
+  - data e ora
+  - livello accesso
+  - stato online/offline
+  - accesso negato e motivo
 
-- Nome: Bar Il Gallo Nero
-- Username: gallonero
-- Password: gallo123
+## Funzionamento generale
 
-Funzioni:
-- Rinnovo abbonamenti
-- Entrata singola
-- Storico movimenti
-- Ricerca cliente
-- Ricerca tessera
-- Registrazione pagamenti
-- Tracciamento IP e data/ora
+1. Il cliente riceve una tessera NFC con numero stampato, per esempio `GYM-001`.
+2. La tessera ha un seriale NFC fisico, collegato al profilo cliente.
+3. Il bar accede alla sezione Amministrazione e rinnova la tessera.
+4. La porta con ESP32 scarica la lista accessi dal server.
+5. Quando il cliente avvicina la tessera, l'ESP32 controlla la cache locale.
+6. Se l'abbonamento è valido, apre la porta.
+7. Se è scaduto, revocato o fuori orario, nega l'accesso e registra il tentativo.
+8. Se la tessera è di livello `cleaner`, apre senza scadenza e registra automaticamente il diario pulizie.
 
-## Totem palestra
+## Regola rinnovi
 
-Il totem interno permette:
-- Controllo scadenza
-- Visualizzazione storico accessi
-- Informazioni palestra
-- Regolamento
-- Stato tessera
-- Dati iscrizione
+Se la tessera è ancora valida, il rinnovo parte dalla scadenza attuale.
+Se è già scaduta, il rinnovo parte da oggi.
+
+Durate predefinite:
+- Giornaliero: 1 giorno
+- Mensile: 31 giorni
+- Annuale: 366 giorni
+
+I prezzi sono configurabili da Admin.
+
+## Avvio locale
+
+```bash
+npm install
+npm start
+```
+
+Aprire:
+
+```text
+http://localhost:3100/admin
+http://localhost:3100/bar
+http://localhost:3100/totem
+http://localhost:3100/public
+```
 
 ## Struttura progetto
 
-/backend
-- server Node.js
-- API REST
-- SQLite
-
-/frontend
-- admin
-- bar
-- totem
-- public
-
-/esp32
-- firmware ESP32
-- gestione cache
-- lettura NFC
-- controllo porta
-
-/database
-- database SQLite
-
-/uploads
-- documenti
-- certificati
-- loghi
-
-## Tecnologie utilizzate
-
-- Node.js
-- Express
-- SQLite
-- HTML5
-- CSS3
-- JavaScript
-- ESP32 Arduino Framework
-
-## Installazione locale
-
-Installare Node.js.
-
-Aprire terminale nella cartella progetto:
-
-```bash
-npm install
-npm start
+```text
+backend/
+  server.js                 Backend Node.js + Express + SQLite
+frontend/
+  style.css                 Tema globale configurabile
+  theme.js                  Applica tema pubblico
+  admin/                    Pannello Admin Proloco
+  bar/                      Area Bar Il Gallo Nero / operatori
+  totem/                    Totem interno palestra
+  public/                   Pagina pubblica palestra
+esp32/
+  proloco_gym_access_esp32.ino
+assets/
+  logo.svg
+data/
+  gym_access.db             Creato automaticamente
+  backups/                  Backup database
+docs/
+  SPECIFICA_PROGETTO.md
+  COLLEGAMENTI_PORTA.md
 ```
 
-Aprire browser:
+## Sezioni web
 
-Admin:
-http://localhost:3100/admin
+### Admin
+Permette di gestire:
+- clienti
+- tessere
+- livelli accesso
+- prezzi
+- operatori bar/ristorante
+- contabilità
+- accessi porta
+- log operazioni
+- diario pulizie
+- temi e impostazioni
+- backup database
 
-Bar:
-http://localhost:3100/bar
-
-Totem:
-http://localhost:3100/totem
-
-## Deploy GitHub
-
-1. Creare repository GitHub
-2. Caricare tutti i file
-3. Installare dipendenze su server
-4. Avviare con:
-
-```bash
-npm install
-npm start
-```
-
-## Deploy consigliato
-
-Consigliato:
-- Render
-- Railway
-- VPS Ubuntu
-- Mini PC locale
-
-## Hardware consigliato
-
-### Porta palestra
-- ESP32
-- PN532 NFC
-- Elettroserratura 12V
-- Alimentatore 12V
-- Relè
-- Pulsante uscita
-- LED rosso/verde
-- Buzzer
+### Bar / Ristorante
+Permette di:
+- cercare tessera tramite codice stampato
+- vedere scadenza
+- rinnovare giornaliero/mensile/annuale
+- registrare importo pagato
+- concedere entrata singola
+- tenere traccia di IP, ora e operatore
 
 ### Totem palestra
-- Tablet Android
-oppure
-- Mini PC touch
+Permette al cliente di:
+- inserire codice tessera
+- vedere scadenza
+- vedere stato abbonamento
+- vedere certificato medico
+- vedere ultimi accessi
 
-### Bar
-- Tablet Android
-oppure
-- PC Windows
+### Pagina pubblica
+Mostra:
+- nome palestra
+- messaggio pubblico
+- orari accesso
+- regolamento base
 
-## API ESP32
+## API principali
 
-Access list:
-`/api/esp32/access-list`
+### ESP32 scarica lista accessi
 
-Invio log:
-`/api/esp32/log`
+```text
+GET /api/esp32/access-list?deviceId=porta-palestra-01&deviceKey=CAMBIA_QUESTA_CHIAVE
+```
 
-Heartbeat:
-`/api/esp32/ping`
+Risposta include:
+- impostazioni porta
+- orari
+- anti-passback
+- secondi apertura
+- elenco tessere
+- livello accesso
+- scadenze
+- entrate singole
+
+### ESP32 invia log accesso
+
+```text
+POST /api/esp32/log-access
+```
+
+Body esempio:
+
+```json
+{
+  "deviceId": "porta-palestra-01",
+  "deviceKey": "CAMBIA_QUESTA_CHIAVE",
+  "nfcSerial": "04:A2:7B:91",
+  "cardCode": "GYM-001",
+  "result": "granted_cleaner",
+  "reason": "cleaner_unlimited",
+  "accessLevel": "cleaner",
+  "displayName": "Pulizie"
+}
+```
+
+## Hardware consigliato porta
+
+- ESP32 DevKit
+- Lettore NFC PN532
+- Relè 5V/12V oppure modulo relè optoisolato
+- Elettroserratura o incontro elettrico 12V
+- Alimentatore 12V serio
+- Step-down 12V -> 5V per ESP32
+- Pulsante interno uscita
+- LED rosso
+- LED verde
+- Buzzer
+- Router 4G o Wi-Fi stabile
+- UPS piccolo 12V consigliato
+
+## Display opzionale ESP32
+
+Il firmware supporta un display OLED SSD1306 I2C 128x64.
+
+Collegamenti tipici:
+
+```text
+OLED VCC -> 3.3V
+OLED GND -> GND
+OLED SDA -> GPIO 21
+OLED SCL -> GPIO 22
+```
+
+Nel firmware:
+
+```cpp
+#define USE_OLED 1
+```
+
+Se non vuoi montare il display:
+
+```cpp
+#define USE_OLED 0
+```
+
+Il sistema continua a funzionare normalmente.
+
+## Livello Pulizie
+
+Per la donna delle pulizie crea una tessera con:
+
+```text
+Livello accesso: Pulizie - illimitato
+```
+
+Comportamento:
+- accesso senza scadenza
+- accesso anche fuori dagli orari normali
+- registrazione automatica nel diario pulizie
+- log porta normale conservato
 
 ## Sicurezza
 
-- Password hashate
-- API key ESP32
-- Cache offline
-- Log IP
-- Sessioni protette
-- Revoca tessere
-- Backup automatici
+Da fare prima dell'uso reale:
+- cambiare password Admin
+- cambiare password Bar demo
+- cambiare `DEVICE_KEY` ESP32
+- usare HTTPS se il server è online
+- non lasciare il database esposto pubblicamente
+- fare backup periodici
+- usare tessere NFC decenti, sapendo che alcuni UID sono clonabili
 
-## Idee future
+## Deploy
 
-- App mobile
-- QR code accesso
-- Pagamenti automatici
-- Statistiche avanzate
-- Telegram bot
-- WhatsApp notifiche
-- Multi palestra
-- Tornelli
-- Prenotazione corsi
-- Monitor palestra live
+GitHub Pages mostra solo pagine statiche e non esegue Node.js, SQLite o API.
+Per il sistema vero usare:
+- Render
+- Railway
+- VPS
+- Mini PC locale
+- NAS con Node.js
 
-## Note
+Per GitHub va bene salvare il codice e collegarlo a un servizio che esegue Node.js.
 
-Questo progetto è stato progettato specificatamente per:
-- Proloco
-- Palestre locali
-- Associazioni
-- Sale sportive
-- Accessi controllati
+## Stato progetto
 
-Sviluppato per Stephan Winckler.
+Questa è una base funzionante e personalizzabile. Per produzione reale servono ancora:
+- autenticazione più robusta con sessioni/JWT
+- password hash con bcrypt invece di SHA-256 semplice
+- HTTPS
+- gestione backup automatica schedulata
+- test su hardware reale
+- hardening API ESP32
