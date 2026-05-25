@@ -1,182 +1,122 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Proloco Gym Access - Test</title>
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Proloco Gym Access - Test GitHub Pages</title>
+  <link rel="stylesheet" href="./style.css" />
   <style>
-    body{
-      margin:0;
-      font-family:Arial,Helvetica,sans-serif;
-      background:#111827;
-      color:white;
-    }
-
-    header{
-      background:#0f172a;
-      padding:30px;
-      text-align:center;
-      box-shadow:0 0 20px rgba(0,0,0,0.5);
-    }
-
-    header h1{
-      margin:0;
-      font-size:40px;
-      color:#38bdf8;
-    }
-
-    header p{
-      color:#cbd5e1;
-      margin-top:10px;
-    }
-
-    .container{
-      max-width:1200px;
-      margin:auto;
-      padding:30px;
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-      gap:20px;
-    }
-
-    .card{
-      background:#1e293b;
-      border-radius:20px;
-      padding:25px;
-      transition:0.3s;
-      box-shadow:0 0 15px rgba(0,0,0,0.3);
-    }
-
-    .card:hover{
-      transform:translateY(-5px);
-      box-shadow:0 0 25px rgba(56,189,248,0.4);
-    }
-
-    .card h2{
-      margin-top:0;
-      color:#38bdf8;
-    }
-
-    .card p{
-      color:#cbd5e1;
-      min-height:60px;
-    }
-
-    .card a{
-      display:inline-block;
-      margin-top:15px;
-      padding:12px 20px;
-      background:#38bdf8;
-      color:black;
-      text-decoration:none;
-      border-radius:12px;
-      font-weight:bold;
-    }
-
-    footer{
-      text-align:center;
-      padding:20px;
-      color:#94a3b8;
-    }
-
-    .status{
-      margin-top:20px;
-      background:#0f172a;
-      padding:15px;
-      border-radius:15px;
-    }
-
-    .online{
-      color:#22c55e;
-      font-weight:bold;
-    }
-
-    .offline{
-      color:#ef4444;
-      font-weight:bold;
-    }
-  </style>
+    .test-wrap{min-height:100vh;padding:28px;max-width:1200px;margin:auto}
+    .test-hero{display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:22px}
+    .test-hero h1{margin:0;font-size:34px}
+    .test-hero p{color:var(--muted);margin:8px 0 0}
+    .test-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+    .test-card h2{margin-top:0}
+    .test-card p{color:var(--muted);min-height:58px}
+    .test-card .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+    .test-card a{display:inline-block;text-decoration:none}
+    .ok{color:var(--accent);font-weight:900}
+    .warnText{color:var(--warn);font-weight:800}
+    code{background:#081522;border:1px solid var(--line);padding:2px 6px;border-radius:7px}
+  .buttonLink{padding:12px 16px;border-radius:12px;font-weight:900}.buttonLink.primary{background:linear-gradient(135deg,var(--accent),#2bbcff);color:#041018}.buttonLink.secondary{background:var(--panel2);color:var(--text);border:1px solid var(--line)}</style>
 </head>
 <body>
+  <main class="test-wrap">
+    <section class="card test-hero">
+      <div>
+        <div class="brand" style="margin-bottom:8px">
+          <div class="logo">PG</div>
+          <div>
+            <h1>Proloco Gym Access</h1>
+            <small>Pagina test per GitHub Pages</small>
+          </div>
+        </div>
+        <p>Questa pagina apre tutte le aree presenti nello ZIP usando i percorsi corretti per GitHub Pages.</p>
+      </div>
+      <span class="pill">Demo statica: <span class="ok">OK</span></span>
+    </section>
 
-<header>
-  <h1>🏋️ Proloco Gym Access</h1>
-  <p>Sistema Gestione Accessi NFC - Demo Test Dashboard</p>
+    <section class="card" style="margin-bottom:16px">
+      <h2>Nota importante</h2>
+      <p>
+        Su GitHub Pages funzionano le pagine HTML/CSS/JS statiche. Le funzioni vere come login,
+        database, rinnovi e API ESP32 richiedono il backend Node.js avviato su Render/Railway/VPS/PC locale.
+      </p>
+      <p>Per la demo completa usa: <code>npm install</code> e poi <code>npm start</code>.</p>
+    </section>
 
-  <div class="status">
-    Stato Sistema:
-    <span class="online">ONLINE</span>
-  </div>
-</header>
+    <section class="test-grid">
+      <article class="card test-card">
+        <h2>🏠 Pagina pubblica palestra</h2>
+        <p>Pagina informativa che può essere aperta anche tramite NFC della tessera.</p>
+        <div class="actions">
+          <a class="primary buttonLink" href="./public/index.html">Apri pagina pubblica</a>
+        </div>
+      </article>
 
-<div class="container">
+      <article class="card test-card">
+        <h2>👑 Admin Proloco</h2>
+        <p>Gestione clienti, tessere, prezzi, operatori, accessi, pagamenti e impostazioni.</p>
+        <div class="actions">
+          <a class="primary buttonLink" href="./admin/index.html">Apri Admin</a>
+        </div>
+      </article>
 
-  <div class="card">
-    <h2>👑 Admin Proloco</h2>
-    <p>
-      Gestione completa palestra, utenti, tessere, rinnovi,
-      statistiche, prezzi e accessi.
-    </p>
+      <article class="card test-card">
+        <h2>🍺 Bar Il Gallo Nero</h2>
+        <p>Area Amministrazione per rinnovi, entrata singola e gestione pagamenti.</p>
+        <div class="actions">
+          <a class="primary buttonLink" href="./bar/index.html">Apri Bar</a>
+        </div>
+      </article>
 
-    <a href="./admin/">Apri Admin</a>
-  </div>
+      <article class="card test-card">
+        <h2>🖥️ Totem palestra</h2>
+        <p>Pagina interna alla palestra per controllare tessera, scadenza e informazioni utente.</p>
+        <div class="actions">
+          <a class="primary buttonLink" href="./totem/index.html">Apri Totem</a>
+        </div>
+      </article>
 
-  <div class="card">
-    <h2>🍺 Bar Il Gallo Nero</h2>
-    <p>
-      Area rinnovi tessere, gestione pagamenti,
-      entrata singola e storico operazioni.
-    </p>
+      <article class="card test-card">
+        <h2>📘 README</h2>
+        <p>Documentazione principale del progetto.</p>
+        <div class="actions">
+          <a class="secondary buttonLink" href="./README.md">Apri README</a>
+        </div>
+      </article>
 
-    <a href="./bar/">Apri Bar</a>
-  </div>
+      <article class="card test-card">
+        <h2>📐 Specifica progetto</h2>
+        <p>Documento con logica generale, sezioni, ESP32 e comportamento accessi.</p>
+        <div class="actions">
+          <a class="secondary buttonLink" href="./docs/SPECIFICA_PROGETTO.md">Apri specifica</a>
+        </div>
+      </article>
 
-  <div class="card">
-    <h2>🖥️ Totem Palestra</h2>
-    <p>
-      Totem interno per verifica tessera,
-      scadenza e informazioni cliente.
-    </p>
+      <article class="card test-card">
+        <h2>🚪 Collegamenti porta</h2>
+        <p>Schema base per ESP32, relè, lettore NFC e serratura elettronica.</p>
+        <div class="actions">
+          <a class="secondary buttonLink" href="./docs/COLLEGAMENTI_PORTA.md">Apri collegamenti</a>
+        </div>
+      </article>
 
-    <a href="./totem/">Apri Totem</a>
-  </div>
+      <article class="card test-card">
+        <h2>🔌 Firmware ESP32</h2>
+        <p>File sorgente Arduino per la porta con lettore NFC e API accessi.</p>
+        <div class="actions">
+          <a class="secondary buttonLink" href="./esp32/proloco_gym_access_esp32.ino">Apri firmware</a>
+        </div>
+      </article>
+    </section>
 
-  <div class="card">
-    <h2>🚪 ESP32 Door API</h2>
-    <p>
-      Endpoint sincronizzazione accessi
-      e gestione cache ESP32.
-    </p>
-
-    <a href="./api/">Apri API</a>
-  </div>
-
-  <div class="card">
-    <h2>📄 README</h2>
-    <p>
-      Documentazione completa progetto,
-      hardware e configurazione.
-    </p>
-
-    <a href="./README.md">Apri README</a>
-  </div>
-
-  <div class="card">
-    <h2>📊 Dashboard Live</h2>
-    <p>
-      Statistiche accessi, rinnovi,
-      utenti online e log attività.
-    </p>
-
-    <a href="./dashboard/">Apri Dashboard</a>
-  </div>
-
-</div>
-
-<footer>
-  Proloco Gym Access © 2026 Stephan Winckler
-</footer>
-
+    <section class="card" style="margin-top:16px">
+      <h2>Credenziali demo</h2>
+      <p><b>Admin:</b> password <code>babyjake</code></p>
+      <p><b>Bar demo:</b> username <code>barcentrale</code> / password <code>bar123</code></p>
+      <p class="warnText">Su GitHub Pages il login vero non può funzionare senza backend Node.js.</p>
+    </section>
+  </main>
 </body>
 </html>
