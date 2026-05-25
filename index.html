@@ -9,12 +9,14 @@
 <style>
 
 :root{
-    --bg:#f3f6fb;
+    --bg:#f4f7fb;
     --card:#ffffff;
     --primary:#2563eb;
+    --primary2:#38bdf8;
     --text:#111827;
     --muted:#6b7280;
     --success:#16a34a;
+    --shadow:0 5px 20px rgba(0,0,0,0.08);
 }
 
 *{
@@ -32,80 +34,87 @@ body{
 header{
     background:white;
     padding:30px;
-    box-shadow:0 2px 15px rgba(0,0,0,0.08);
+    box-shadow:var(--shadow);
+}
+
+.top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:20px;
 }
 
 .logo{
     display:flex;
     align-items:center;
-    gap:15px;
+    gap:18px;
 }
 
 .logo-icon{
-    width:60px;
-    height:60px;
-    border-radius:20px;
-    background:linear-gradient(135deg,#2563eb,#38bdf8);
+    width:70px;
+    height:70px;
+    border-radius:22px;
+    background:linear-gradient(135deg,var(--primary),var(--primary2));
     display:flex;
     align-items:center;
     justify-content:center;
+    font-size:34px;
     color:white;
-    font-size:28px;
 }
 
-.logo-text h1{
-    font-size:32px;
+.logo h1{
+    font-size:34px;
 }
 
-.logo-text p{
+.logo p{
     color:var(--muted);
     margin-top:5px;
 }
 
 .status{
-    margin-top:20px;
     background:#ecfdf5;
     border:1px solid #86efac;
-    padding:15px;
-    border-radius:15px;
+    padding:15px 20px;
+    border-radius:18px;
     color:var(--success);
     font-weight:bold;
 }
 
 .container{
-    max-width:1400px;
+    max-width:1500px;
     margin:auto;
     padding:40px 20px;
 }
 
 .grid{
     display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
     gap:25px;
 }
 
 .card{
     background:var(--card);
-    border-radius:25px;
+    border-radius:28px;
     padding:30px;
-    box-shadow:0 4px 20px rgba(0,0,0,0.08);
-    transition:0.3s;
+    box-shadow:var(--shadow);
+    transition:0.25s;
 }
 
 .card:hover{
     transform:translateY(-5px);
-    box-shadow:0 10px 30px rgba(37,99,235,0.15);
+    box-shadow:0 10px 35px rgba(37,99,235,0.15);
 }
 
 .card-icon{
-    width:65px;
-    height:65px;
-    border-radius:18px;
+    width:70px;
+    height:70px;
+    border-radius:20px;
     background:#eff6ff;
     display:flex;
     align-items:center;
     justify-content:center;
-    font-size:30px;
+    font-size:34px;
     margin-bottom:20px;
 }
 
@@ -115,16 +124,16 @@ header{
 
 .card p{
     color:var(--muted);
-    line-height:1.5;
-    min-height:70px;
+    line-height:1.6;
+    min-height:90px;
 }
 
 .card a{
     display:inline-block;
     margin-top:20px;
-    text-decoration:none;
-    background:var(--primary);
+    background:linear-gradient(135deg,var(--primary),var(--primary2));
     color:white;
+    text-decoration:none;
     padding:14px 22px;
     border-radius:14px;
     font-weight:bold;
@@ -135,37 +144,65 @@ header{
     opacity:0.9;
 }
 
+.badge{
+    display:inline-block;
+    background:#dbeafe;
+    color:#1d4ed8;
+    padding:6px 14px;
+    border-radius:999px;
+    font-size:13px;
+    margin-top:10px;
+}
+
+.info{
+    margin-top:40px;
+    background:white;
+    border-radius:30px;
+    padding:35px;
+    box-shadow:var(--shadow);
+}
+
+.info h3{
+    margin-bottom:20px;
+}
+
+.info-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:20px;
+}
+
+.info-box{
+    background:#f8fafc;
+    padding:20px;
+    border-radius:20px;
+}
+
+.info-box h4{
+    margin-bottom:10px;
+}
+
+.info-box p{
+    color:var(--muted);
+    line-height:1.5;
+}
+
 footer{
     text-align:center;
     padding:40px;
     color:var(--muted);
 }
 
-.quick-info{
-    margin-top:40px;
-    background:white;
-    border-radius:25px;
-    padding:30px;
-    box-shadow:0 4px 20px rgba(0,0,0,0.08);
+@media(max-width:700px){
+
+.logo h1{
+    font-size:28px;
 }
 
-.quick-info h3{
-    margin-bottom:20px;
+.card{
+    padding:25px;
 }
 
-.quick-info ul{
-    padding-left:20px;
-    line-height:1.8;
-}
-
-.badge{
-    display:inline-block;
-    background:#dbeafe;
-    color:#1d4ed8;
-    padding:5px 12px;
-    border-radius:999px;
-    font-size:13px;
-    margin-top:10px;
 }
 
 </style>
@@ -175,21 +212,27 @@ footer{
 
 <header>
 
+<div class="top">
+
 <div class="logo">
 
 <div class="logo-icon">
 🏋️
 </div>
 
-<div class="logo-text">
+<div>
 <h1>Proloco Gym Access</h1>
-<p>Sistema NFC gestione palestra • Proloco Molini di Triora</p>
+<p>
+Sistema NFC gestione palestra • Proloco Molini di Triora
+</p>
 </div>
 
 </div>
 
 <div class="status">
 ● Sistema Online
+</div>
+
 </div>
 
 </header>
@@ -199,62 +242,77 @@ footer{
 <div class="grid">
 
 <div class="card">
+
 <div class="card-icon">👑</div>
+
 <h2>Admin Proloco</h2>
+
 <p>
-Gestione completa sistema:
-clienti, tessere NFC, prezzi,
-accessi, statistiche, ESP32 e configurazioni.
+Gestione completa:
+clienti, tessere NFC, accessi,
+prezzi, statistiche, ESP32 e configurazioni sistema.
 </p>
 
 <div class="badge">Admin</div>
 
 <br>
 
-<a href="./admin/index.html">
+<a href="./frontend/admin/">
 Apri Admin
 </a>
+
 </div>
 
 <div class="card">
+
 <div class="card-icon">🍺</div>
+
 <h2>Bar Il Gallo Nero</h2>
+
 <p>
-Rinnovo abbonamenti,
+Rinnovi abbonamenti,
 entrate singole,
-pagamenti e gestione clienti.
+pagamenti e gestione utenti palestra.
 </p>
 
 <div class="badge">Operatore</div>
 
 <br>
 
-<a href="./bar/index.html">
+<a href="./frontend/bar/">
 Apri Bar
 </a>
+
 </div>
 
 <div class="card">
+
 <div class="card-icon">🖥️</div>
+
 <h2>Totem Palestra</h2>
+
 <p>
 Verifica tessera,
 scadenza abbonamento,
-ultimi accessi e informazioni utente.
+ultimi accessi e informazioni cliente.
 </p>
 
 <div class="badge">Totem</div>
 
 <br>
 
-<a href="./totem/index.html">
+<a href="./frontend/totem/">
 Apri Totem
 </a>
+
 </div>
 
 <div class="card">
+
 <div class="card-icon">📊</div>
+
 <h2>Dashboard</h2>
+
 <p>
 Statistiche live,
 accessi giornalieri,
@@ -265,66 +323,92 @@ rinnovi e stato ESP32.
 
 <br>
 
-<a href="./dashboard/index.html">
+<a href="./frontend/dashboard/">
 Apri Dashboard
 </a>
+
 </div>
 
 <div class="card">
+
 <div class="card-icon">📄</div>
+
 <h2>README</h2>
+
 <p>
-Documentazione completa,
-hardware, installazione,
-API e configurazioni.
+Documentazione completa progetto,
+hardware, API ESP32 e configurazioni.
 </p>
 
-<div class="badge">Docs</div>
+<div class="badge">Documentazione</div>
 
 <br>
 
-<a href="./readme.html">
+<a href="./frontend/readme.html">
 Apri README
 </a>
+
 </div>
 
 <div class="card">
+
 <div class="card-icon">🔌</div>
+
 <h2>Firmware ESP32</h2>
+
 <p>
-Codice firmware NFC,
+Firmware NFC,
 cache offline,
-display OLED e gestione accessi.
+display OLED e gestione accessi palestra.
 </p>
 
 <div class="badge">ESP32</div>
 
 <br>
 
-<a href="./firmware/index.html">
+<a href="./frontend/firmware/">
 Apri Firmware
 </a>
-</div>
 
 </div>
 
-<div class="quick-info">
+</div>
+
+<div class="info">
 
 <h3>📌 Informazioni Sistema</h3>
 
-<ul>
-<li>✔ Gestione accessi NFC</li>
-<li>✔ Cache offline ESP32</li>
-<li>✔ Diario pulizie automatico</li>
-<li>✔ Gestione livelli accesso</li>
-<li>✔ Temi configurabili</li>
-<li>✔ Dashboard statistiche</li>
-<li>✔ Totem palestra</li>
-<li>✔ Supporto display ESP32</li>
-<li>✔ Tracciamento accessi e IP</li>
-<li>✔ Entrata singola</li>
-<li>✔ Rinnovi automatici</li>
-</ul>
+<div class="info-grid">
+
+<div class="info-box">
+<h4>🔐 Accessi NFC</h4>
+<p>
+Gestione accessi tramite tessere NFC con cache offline ESP32.
+</p>
+</div>
+
+<div class="info-box">
+<h4>🧹 Livello Pulizie</h4>
+<p>
+Accesso illimitato e diario automatico pulizie registrato.
+</p>
+</div>
+
+<div class="info-box">
+<h4>📈 Dashboard</h4>
+<p>
+Statistiche accessi, rinnovi, utenti attivi e tentativi negati.
+</p>
+</div>
+
+<div class="info-box">
+<h4>🌐 Sistema Online</h4>
+<p>
+Sincronizzazione cloud con log accessi e gestione remota.
+</p>
+</div>
+
+</div>
 
 </div>
 
