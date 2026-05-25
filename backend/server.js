@@ -25,6 +25,15 @@ app.use('/assets', express.static(path.join(ROOT, 'assets')));
 const db = new Database(DB_FILE);
 db.pragma('journal_mode = WAL');
 
+function ensureColumn(table, column, definition) {
+  const cols = db.prepare(`PRAGMA table_info(${table})`).all().map(c => c.name);
+  if (!cols.includes(column)) db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+}
+function setting(key, fallback='') { return db.prepare('SELECT value FROM settings WHERE key=?').get(key)?.value ?? fallback; }
+function setSetting(key, value) {
+  db.prepare('INSERT INTO settings(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value').run(key, String(value));
+}
+
 function sha256(v) { return crypto.createHash('sha256').update(String(v)).digest('hex'); }
 function nowIso() { return new Date().toISOString(); }
 function todayDate() { return new Date().toISOString().slice(0,10); }
@@ -80,6 +89,7 @@ function initDb() {
       customer_id INTEGER,
       status TEXT DEFAULT 'active',
       url TEXT,
+      access_level TEXT DEFAULT 'member',
       created_at TEXT NOT NULL,
       FOREIGN KEY(customer_id) REFERENCES customers(id)
     );
@@ -139,6 +149,17 @@ function initDb() {
       ip TEXT,
       created_at TEXT NOT NULL
     );
+    CREATE TABLE IF NOT EXISTS cleaning_diary (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      customer_id INTEGER,
+      card_code TEXT,
+      nfc_serial TEXT,
+      device_id TEXT,
+      action TEXT DEFAULT 'cleaner_access',
+      note TEXT,
+      created_at TEXT NOT NULL,
+      ip TEXT
+    );
     CREATE TABLE IF NOT EXISTS devices (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       device_id TEXT UNIQUE NOT NULL,
@@ -150,10 +171,17 @@ function initDb() {
     );
   `);
 
+  ensureColumn('cards','access_level',"TEXT DEFAULT 'member'");
+  ensureColumn('customers','emergency_contact',"TEXT DEFAULT ''");
   const adminPass = db.prepare('SELECT value FROM settings WHERE key=?').get('admin_password_hash');
   if (!adminPass) db.prepare('INSERT INTO settings(key,value) VALUES(?,?)').run('admin_password_hash', sha256('babyjake'));
   const gymName = db.prepare('SELECT value FROM settings WHERE key=?').get('gym_name');
   if (!gymName) db.prepare('INSERT INTO settings(key,value) VALUES(?,?)').run('gym_name', 'Palestra Proloco Molini di Triora');
+  const defaults = {
+    theme:'clean-light', accent:'#16a34a', logo_text:'PG', open_seconds:'5', anti_passback_seconds:'60',
+    allowed_from:'06:00', allowed_to:'23:00', max_daily_accesses:'0', public_message:'Allenati in sicurezza. Rispetta gli spazi e il regolamento della palestra.'
+  };
+  for (const [k,v] of Object.entries(defaults)) if (!db.prepare('SELECT value FROM settings WHERE key=?').get(k)) setSetting(k,v);
 
   const pricesCount = db.prepare('SELECT COUNT(*) c FROM prices').get().c;
   if (!pricesCount) {
@@ -165,7 +193,7 @@ function initDb() {
   const opCount = db.prepare('SELECT COUNT(*) c FROM operators').get().c;
   if (!opCount) {
     db.prepare('INSERT INTO operators(username,display_name,password_hash,role,created_at) VALUES(?,?,?,?,?)')
-      .run('barcentrale','Bar Centrale',sha256('bar123'),'bar',nowIso());
+      .run('gallonero','Bar Il Gallo Nero',sha256('gallo123'),'bar',nowIso());
   }
   const devCount = db.prepare('SELECT COUNT(*) c FROM devices').get().c;
   if (!devCount) {
@@ -199,6 +227,10 @@ app.get('/admin', (req,res)=>res.sendFile(path.join(ROOT,'frontend','admin','ind
 app.get('/bar', (req,res)=>res.sendFile(path.join(ROOT,'frontend','bar','index.html')));
 app.get('/totem', (req,res)=>res.sendFile(path.join(ROOT,'frontend','totem','index.html')));
 app.get('/public', (req,res)=>res.sendFile(path.join(ROOT,'frontend','public','index.html')));
+app.get('/api/public/settings', (req,res)=>{
+  const rows = Object.fromEntries(db.prepare('SELECT key,value FROM settings').all().map(x=>[x.key,x.value]));
+  res.json({ok:true, settings:{gym_name:rows.gym_name, theme:rows.theme, accent:rows.accent, logo_text:rows.logo_text, public_message:rows.public_message, allowed_from:rows.allowed_from, allowed_to:rows.allowed_to}});
+});
 
 app.post('/api/admin/login', requireAdmin, (req,res)=>{ logAdmin(req,'admin_login'); res.json({ok:true}); });
 app.get('/api/admin/dashboard', requireAdmin, (req,res)=>{
@@ -211,6 +243,20 @@ app.get('/api/admin/dashboard', requireAdmin, (req,res)=>{
   };
   res.json({ok:true, stats});
 });
+
+app.get('/api/admin/settings', requireAdmin, (req,res)=>{
+  const settings = Object.fromEntries(db.prepare('SELECT key,value FROM settings').all().map(x=>[x.key,x.value]));
+  res.json({ok:true, settings});
+});
+app.post('/api/admin/settings', requireAdmin, (req,res)=>{
+  const allowed = ['gym_name','theme','accent','logo_text','open_seconds','anti_passback_seconds','allowed_from','allowed_to','max_daily_accesses','public_message'];
+  for (const k of allowed) if (Object.prototype.hasOwnProperty.call(req.body,k)) setSetting(k, req.body[k]);
+  logAdmin(req,'save_settings',req.body); res.json({ok:true});
+});
+app.get('/api/admin/cleaning-diary', requireAdmin, (req,res)=>{
+  res.json({ok:true, entries:db.prepare('SELECT * FROM cleaning_diary ORDER BY id DESC LIMIT 300').all()});
+});
+
 app.get('/api/admin/prices', requireAdmin, (req,res)=>res.json({ok:true, prices:db.prepare('SELECT * FROM prices ORDER BY id').all()}));
 app.post('/api/admin/prices', requireAdmin, (req,res)=>{
   const {code,label,days,price,enabled=1}=req.body;
@@ -225,7 +271,7 @@ app.post('/api/admin/operators', requireAdmin, (req,res)=>{
   logAdmin(req,'create_operator',{username,displayName,role}); res.json({ok:true});
 });
 app.get('/api/admin/customers', requireAdmin, (req,res)=>{
-  const rows = db.prepare(`SELECT c.*, ca.card_code, ca.nfc_serial, ca.status card_status, s.valid_until, s.revoked
+  const rows = db.prepare(`SELECT c.*, ca.card_code, ca.nfc_serial, ca.status card_status, ca.access_level, s.valid_until, s.revoked
     FROM customers c LEFT JOIN cards ca ON ca.customer_id=c.id LEFT JOIN subscriptions s ON s.customer_id=c.id
     ORDER BY c.id DESC`).all();
   res.json({ok:true, customers:rows});
@@ -237,7 +283,7 @@ app.post('/api/admin/customers', requireAdmin, (req,res)=>{
     VALUES(?,?,?,?,?,?,?,?,?,?,?)`).run(memberCode,b.fullName,b.phone||'',b.email||'',b.address||'',b.birthDate||'',b.memberSince||todayDate(),b.notes||'',b.medicalCertificateExpiry||'',b.regulationSigned?1:0,nowIso());
   const customerId = info.lastInsertRowid;
   if (b.cardCode && b.nfcSerial) {
-    db.prepare('INSERT INTO cards(card_code,nfc_serial,customer_id,url,created_at) VALUES(?,?,?,?,?)').run(b.cardCode,b.nfcSerial,customerId,b.url||'',nowIso());
+    db.prepare('INSERT INTO cards(card_code,nfc_serial,customer_id,url,access_level,created_at) VALUES(?,?,?,?,?,?)').run(b.cardCode,b.nfcSerial,customerId,b.url||'',b.accessLevel||'member',nowIso());
   }
   db.prepare('INSERT INTO subscriptions(customer_id,valid_until,updated_at) VALUES(?,?,?)').run(customerId,b.validUntil||todayDate(),nowIso());
   logAdmin(req,'create_customer',{customerId,memberCode}); res.json({ok:true, customerId});
@@ -259,7 +305,7 @@ app.post('/api/admin/backup', requireAdmin, (req,res)=>{
 app.post('/api/operator/login', requireOperator, (req,res)=>{ logAdmin(req,'operator_login',{},req.operator); res.json({ok:true, operator:{username:req.operator.username,displayName:req.operator.display_name}}); });
 app.get('/api/operator/search-card', requireOperator, (req,res)=>{
   const q = req.query.q || '';
-  const row = db.prepare(`SELECT c.*, ca.id card_id, ca.card_code, ca.nfc_serial, ca.status card_status, s.valid_until, s.revoked
+  const row = db.prepare(`SELECT c.*, ca.id card_id, ca.card_code, ca.nfc_serial, ca.status card_status, ca.access_level, s.valid_until, s.revoked
     FROM cards ca JOIN customers c ON c.id=ca.customer_id LEFT JOIN subscriptions s ON s.customer_id=c.id
     WHERE ca.card_code=? OR ca.nfc_serial=? OR c.member_code=?`).get(q,q,q);
   if (!row) return res.status(404).json({ok:false,error:'Tessera/cliente non trovato'});
@@ -307,12 +353,12 @@ function verifyDevice(req) {
 app.get('/api/esp32/access-list', (req,res)=>{
   const dev = verifyDevice(req); if(!dev) return res.status(401).json({ok:false,error:'Device non autorizzato'});
   db.prepare('UPDATE devices SET last_sync=? WHERE id=?').run(nowIso(),dev.id);
-  const rows = db.prepare(`SELECT ca.nfc_serial, ca.card_code, ca.status, c.id customer_id, c.full_name, s.valid_until, s.revoked,
+  const rows = db.prepare(`SELECT ca.nfc_serial, ca.card_code, ca.status, ca.access_level, c.id customer_id, c.full_name, s.valid_until, s.revoked,
     (SELECT COUNT(*) FROM one_shot_entries o WHERE o.card_id=ca.id AND o.used=0) one_shot
     FROM cards ca JOIN customers c ON c.id=ca.customer_id LEFT JOIN subscriptions s ON s.customer_id=c.id
     WHERE c.active=1`).all();
   const settings = Object.fromEntries(db.prepare('SELECT key,value FROM settings').all().map(x=>[x.key,x.value]));
-  res.json({ok:true, generatedAt:nowIso(), deviceId:dev.device_id, settings:{openSeconds:5, antiPassbackSeconds:60, allowedFrom:'06:00', allowedTo:'23:00', gymName:settings.gym_name}, cards:rows});
+  res.json({ok:true, generatedAt:nowIso(), deviceId:dev.device_id, settings:{openSeconds:Number(settings.open_seconds||5), antiPassbackSeconds:Number(settings.anti_passback_seconds||60), allowedFrom:settings.allowed_from||'06:00', allowedTo:settings.allowed_to||'23:00', maxDailyAccesses:Number(settings.max_daily_accesses||0), gymName:settings.gym_name, theme:settings.theme, accent:settings.accent}, cards:rows});
 });
 app.post('/api/esp32/log-access', (req,res)=>{
   const dev = verifyDevice(req); if(!dev) return res.status(401).json({ok:false,error:'Device non autorizzato'});
@@ -322,6 +368,10 @@ app.post('/api/esp32/log-access', (req,res)=>{
   let cardCode = card?.card_code || b.cardCode || '';
   db.prepare('INSERT INTO access_logs(nfc_serial,card_code,customer_id,device_id,result,reason,created_at,synced_at,ip) VALUES(?,?,?,?,?,?,?,?,?)')
     .run(b.nfcSerial||'',cardCode,customerId,dev.device_id,b.result||'unknown',b.reason||'',b.createdAt||nowIso(),nowIso(),clientIp(req));
+  if ((b.result==='granted' || b.result==='granted_cleaner') && card && card.access_level==='cleaner') {
+    db.prepare('INSERT INTO cleaning_diary(customer_id,card_code,nfc_serial,device_id,action,note,created_at,ip) VALUES(?,?,?,?,?,?,?,?)')
+      .run(card.customer_id, card.card_code, card.nfc_serial, dev.device_id, 'cleaner_access', b.note||'Accesso pulizie registrato automaticamente', b.createdAt||nowIso(), clientIp(req));
+  }
   if (b.result==='granted_one_shot' && card) {
     const one = db.prepare('SELECT * FROM one_shot_entries WHERE card_id=? AND used=0 ORDER BY id LIMIT 1').get(card.id);
     if(one) db.prepare('UPDATE one_shot_entries SET used=1, used_at=? WHERE id=?').run(nowIso(),one.id);
