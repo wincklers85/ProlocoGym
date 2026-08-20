@@ -8,7 +8,7 @@
     "type": "yellow",
     "title": "ALLERTA GIALLA PER TEMPORALI",
     "message": "Dalle 15:00 di oggi 20 agosto fino alle 15:00 di domani 21 agosto è in vigore lo STATO DI ALLERTA GIALLA PER TEMPORALI. Se la situazione peggiora la palestra sarà chiusa.",
-    "startsAt": "2026-08-20T15:00:00+02:00",
+    "startsAt": "2026-08-20T00:00:00+02:00",
     "endsAt": "2026-08-21T15:00:00+02:00"
   }
 }
