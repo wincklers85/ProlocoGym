@@ -1,17 +1,17 @@
 {
-  "code": "376",
-  "updated": "2026-10-19T15:08:00+02:00",
+  "code": "525",
+  "updated": "2026-10-19T22:17:00+02:00",
   "validUntil": "2026-09-06T23:59:59+02:00",
   "status": "open",
   "message": null,
-  "closedFrom": "2026-10-20T00:00:00+02:00",
-  "closedUntil": "2026-10-21T00:00:00+02:00",
-  "closedMessage": "Martedì 20 ottobre la palestra resterà chiusa per l'intera giornata per Allerta Arancione.",
+  "closedFrom": "2026-10-19T22:17:00+02:00",
+  "closedUntil": "2026-10-21T08:00:00+02:00",
+  "closedMessage": "La palestra resterà chiusa per Allerta Arancione fino alle 08:00 di mercoledì 21 ottobre. Da quell'ora sarà visibile il nuovo codice di accesso.",
   "alert": {
     "type": "orange",
-    "title": "ALLERTA METEO GIALLA E ARANCIONE",
-    "message": "Martedì 20 ottobre sarà in vigore lo stato di Allerta Gialla dalle 00:00 alle 07:00 e di Allerta Arancione dalle 07:00 alle 23:59. La palestra resterà chiusa per tutta la giornata del 20 ottobre.",
-    "startsAt": "2026-10-19T15:08:00+02:00",
-    "endsAt": "2026-10-20T23:59:59+02:00"
+    "title": "PALESTRA CHIUSA PER ALLERTA ARANCIONE",
+    "message": "Martedì 20 ottobre sarà in vigore lo stato di Allerta Gialla dalle 00:00 alle 07:00 e di Allerta Arancione dalle 07:00 alle 23:59. La palestra resterà chiusa per Allerta Arancione fino alle 08:00 di mercoledì 21 ottobre. Il nuovo codice 525 sarà visibile dalle 08:00.",
+    "startsAt": "2026-10-19T22:17:00+02:00",
+    "endsAt": "2026-10-21T08:00:00+02:00"
   }
 }
